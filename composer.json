@@ -1,0 +1,33 @@
+{
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
+    },
+    "require": {
+        "itsgoingd/clockwork": "~1.9",
+        "j4mie/idiorm": "^1.5",
+        "PHPMailer/PHPMailer": "^5.2",
+        "symfony/console": "^2.7"
+    },
+    "autoload": {
+        "classmap": [
+            "app/console",
+            "app/engine",
+            "app/middleware",
+            "app/provider"
+        ]
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "composer dump -o"
+        ],
+        "post-update-cmd": [
+            "composer dump -o"
+        ]
+    },
+    "config": {
+        "secure-http": false
+    }
+}
