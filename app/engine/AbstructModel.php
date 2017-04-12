@@ -29,15 +29,16 @@ abstract class AbstractModel extends Model
 
     public function get(array $where, ...$args)
     {
-        $model =& $this->clean();
+        $model = $this->clean();
         if (is_array($where)) {
             $model->where($where);
         }
 
         // ['asc' => 'rank', 'desc' => 'time'], 排序map字段
+        $args = array_filter($args);
         if (is_array($args)) {
-            foreach ($args AS $key => $val) {
-                $model = ($key === 'desc' ? $model->order_by_desc($val) : $model->order_by_asc($val));
+            foreach ($args AS $val) {
+                $model = (key($val) === 'desc' ? $model->order_by_desc($val['desc']) : $model->order_by_asc($val['asc']));
             }
         }
 
@@ -53,7 +54,7 @@ abstract class AbstractModel extends Model
     }
 
 
-    
+
     public function find($id, $is_array = true)
     {
         $item = $this->clean()->where(static::$_primary, $id)->find_one();

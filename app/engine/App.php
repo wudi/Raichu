@@ -11,9 +11,10 @@ use bilibili\raichu\middleware\clockwork\CacheStorage;
  */
 class App
 {
-    protected static $_instance;
 
+    protected static $_instance;
     protected $_data = array();
+
 
     public static function getInstance($debug = false)
     {
@@ -24,10 +25,12 @@ class App
         return static::$_instance;
     }
 
+
     public function openDebug()
     {
         $registry = Registry::getInstance();
         $registry->debug = true;
+
         $storage = null;
         if ($mc_config = $registry->memcache_config) {
             $storage = new CacheStorage($mc_config['host'], $mc_config['port']);
@@ -66,11 +69,6 @@ class App
     public function getRouter()
     {
         return Router::getInstance();
-    }
-
-    public function getLogger()
-    {
-        // return Logger::getInstance();
     }
 
     public function getRequest()

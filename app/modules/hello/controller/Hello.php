@@ -32,7 +32,7 @@ class HelloController extends AbstractController
 
     public function index($request)
     {
-        echo 333333333333 . PHP_EOL;
+        echo $this->hello() . PHP_EOL;
     }
 
 
@@ -49,6 +49,7 @@ class HelloController extends AbstractController
 
     public function shakehands($request)
     {
+        echo $request->get('id') ?: 0;
         echo $this->hello(),$this->listen($request);
     }
 

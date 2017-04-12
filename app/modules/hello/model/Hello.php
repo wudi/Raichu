@@ -22,7 +22,8 @@ class HelloModel extends AbstractModel
 
     public function shakehands()
     {
-        return 'hello world' . PHP_EOL;
+        $ret = $this->get(['module' => 'operation'], ['desc' => 'id']);
+        return json_encode($ret);
     }
 
 
