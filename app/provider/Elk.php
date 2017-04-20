@@ -1,5 +1,5 @@
 <?php
-namespace bilibili\raichu\Provider\logger;
+namespace bilibili\raichu\Provider;
 /**
  * 远程日志收集器.
  * User: gukai@bilibili.com
