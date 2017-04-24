@@ -2,6 +2,7 @@
 
 namespace bilibili\raichu\middleware\clockwork;
 
+use bilibili\raichu\engine\App;
 use Clockwork\DataSource\DataSource as DS;
 use Clockwork\Request\Request;
 use Clockwork\Request\Timeline;
@@ -27,6 +28,7 @@ class DataSource extends DS
     public function __construct()
     {
         $this->timeline = new Timeline();
+        $this->app = App::getInstance();
     }
 
     /**
@@ -37,11 +39,11 @@ class DataSource extends DS
     {
         $request->timelineData = $this->timeline->finalize($request->time);
         $request->databaseQueries = $this->databaseQueries;
-        $routeInfo = Router::getInstance()->getInfo();
-        $request->controller = $routeInfo['controller'];
-        $request->method = $routeInfo['method'];
-        $request->getData = pRequest::getInstance()->get();
-        $request->postData = pRequest::getInstance()->getPost();
+        $routeInfo = $this->app->getRouter()->getInfo();
+        $request->controller = isset($routeInfo['controller']) ? $routeInfo['controller'] : null;
+        $request->method = isset($routeInfo['method']) ? $routeInfo['method'] : null;
+        $request->getData = $this->app->getRequest()->get();
+        $request->postData = $this->app->getRequest()->getPost();
 
         return $request;
     }

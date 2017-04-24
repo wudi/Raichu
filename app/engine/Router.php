@@ -2,6 +2,7 @@
 namespace bilibili\raichu\engine;
 use bilibili\raichu\middleware\clockwork\Monitor;
 use Clockwork\Support\Lumen\Controller;
+use bilibili\raichu\engine\App;
 
 /**
  * 自动识别和手动配置路由.
@@ -12,6 +13,7 @@ use Clockwork\Support\Lumen\Controller;
 class Router
 {
 
+    protected $app;
     protected static $modules = 'hello';
     protected static $controller = 'Hello';
     protected static $method;
@@ -52,19 +54,10 @@ class Router
     }
 
 
-    public function __construct()
+    public function __construct(App $app)
     {
-        $this->config = Registry::getInstance()->config;
-    }
-
-
-    public static function getInstance()
-    {
-        if (static::$_instance == null) {
-            static::$_instance = new static();
-        }
-
-        return static::$_instance;
+        $this->app = $app;
+        $this->config = $this->app->config;
     }
 
 
@@ -76,7 +69,7 @@ class Router
         }
 
         $segments = [];
-        $uri = Request::getInstance()->getUrlPath();
+        $uri = $this->app->make("request")->getUrlPath();
         if ($uri && $uri != '/') {
             $uri = parse_url($uri, PHP_URL_PATH);
             $uri = str_replace(['//', '../'], '/', trim($uri, '/'));
@@ -172,7 +165,7 @@ _return:
 
     public function fetchModules($slash = DIRECTORY_SEPARATOR)
     {
-        $uri = Request::getInstance()->getUrlPath();
+        $uri = $this->app->make("request")->getUrlPath();
 
         $item = null;
         if ($slash === $uri) {
@@ -221,10 +214,10 @@ _return:
             isset($this->config['is_enable_response']) &&
             false !== $this->config['is_enable_response']
         ) {
-            array_unshift(static::$params, Response::getInstance());
+            array_unshift(static::$params, $this->app->make("response"));
         }
 
-        array_unshift(static::$params, Request::getInstance());
+        array_unshift(static::$params, $this->app->make("request"));
         return static::$params;
     }
 
@@ -286,13 +279,13 @@ _return:
      */
     public function run($callback = null)
     {
-        $method = Request::getInstance()->getMethod();
+        $method = $this->app->make("request")->getMethod();
 
         $handled = false;
         if (isset(static::$routes[$method])) {
             $handled = $this->handle(static::$routes[$method]);
             if (!$handled) {
-                $handled = $this->autoHandle(Request::getInstance());
+                $handled = $this->autoHandle($this->app->make("request"));
             }
         }
 
@@ -300,13 +293,13 @@ _return:
             // Handle 404
             $notFound = $this->notFound;
             if (!$notFound) {
-                Response::getInstance()->abort(404);
+                $this->app->make("response")->abort(404);
             }
             if (is_array($notFound)) {
                 $notFound[0] = new $notFound[0]();
             }
             if (!is_callable($notFound)) {
-                Response::getInstance()->abort(404);
+                $this->app->make("response")->abort(404);
             }
             call_user_func($notFound);
         } else {
@@ -325,7 +318,7 @@ _return:
             ob_end_clean();
         }
 
-        if (Registry::getInstance()->debug) {
+        if ($this->app->debug) {
             Monitor::getInstance()->endEvent('App Request');
         }
     }
@@ -340,7 +333,7 @@ _return:
     protected function handle($routes)
     {
         // The current page URL
-        $currentUri = Request::getInstance()->getUrlPath();
+        $currentUri = $this->app->make("request")->getUrlPath();
 
         // Loop all routes
         foreach ($routes as $route) {
@@ -364,7 +357,7 @@ _return:
 
                     }, $matches, array_keys($matches)
                 );
-                $params = array_merge([Request::getInstance()], $params);
+                $params = array_merge([$this->app->make("request")], $params);
 
                 // call the handling function with the URL parameters
                 if ($route['as']) {

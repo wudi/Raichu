@@ -14,10 +14,6 @@ interface ViewEngine
 
 class View
 {
-    /**
-     * @var static view instance, for global call
-     */
-    protected static $_view;
 
     /**
      * @var array View data
@@ -59,17 +55,6 @@ class View
             $this->engine = $engine;
             $this->instance->setPath($path);
         }
-    }
-
-
-
-    public static function getInstance()
-    {
-        if (null === static::$_view) {
-            static::$_view = new static();
-        }
-
-        return static::$_view;
     }
 
 

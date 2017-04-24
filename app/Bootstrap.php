@@ -17,6 +17,9 @@ Session::config();
 
 $app = App::getInstance();
 
+// Init common config
+$app->config = include ROOT.'/app/config/config.php';
+
 // Enable Debug
 $app->openDebug();
 
@@ -24,17 +27,18 @@ $app->openDebug();
 $options = include __DIR__.'/config/database.php';
 $app->setDB($options);
 
-// Init common config
-$app->getRegistry()->config = include ROOT.'/app/config/config.php';
-
 // Init Dispacher
-$app->dispatcher();
+$app->dispatcher()->parseUrl();
+
+// Init log
+// $app->getLogger()->setConfig($app->getRegistry()->config['seaslog']);
 
 // Init Router
 $router = $app->getRouter();
 
 // Init Loader
 $app->autoload($router->fetchModules());
+
 
 
 try {
@@ -47,6 +51,8 @@ try {
 } catch (Exception $e) {
     $data['code'] = $e->getCode();
     $data['msg'] = $e->getMessage();
+
+    // $app->getLogger()->error('[Exception]: '.$data['msg']);
 
     $app->getResponse()->ajaxReturn($data);
 }

@@ -11,19 +11,16 @@ class Loader
 {
 
     protected static $loaded = [];
-    protected static $modules;
-    protected static $config;
-    protected static $counter;
+    protected static $module;
 
 
-    public function __construct($modules = null)
+    public function __construct($module = null)
     {
         spl_autoload_register([$this, 'autoload']);
-        if (!$modules) {
-            $modules = Router::getInstance()->fetchModules();
+        if (!$module) {
+            $module = App::getInstance()->getRouter()->fetchModules();
         }
-        static::$modules = $modules;
-        static::$config = Registry::getInstance()->config;
+        static::$module = $module;
     }
 
 
@@ -46,18 +43,13 @@ class Loader
         $blockName = strtolower($blockName);
         $fileName = ucfirst(trim($fileName, 'php')).$suffix;
 
-        $files = PROVIDER_PATH.$fileName;
-        if (glob($files)) {
-            // ...
-        } else {
-            $files = MOD_PATH.DS.static::$modules.DS.$blockName.DS.$fileName;
+        $files = PROVIDER_PATH.DS.$fileName;
+        if (!file_exists($files)) {
+            $files = MOD_PATH.DS. static::$module .DS.$blockName.DS.$fileName;
         }
 
-        foreach (glob($files) AS $val) {
-            include $val;
-        }
-
-        return (static::$loaded[$blockName][$fileName] = true);
+        static::$loaded[$blockName][$fileName] = 1;
+        include $files;
     }
 
 

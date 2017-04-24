@@ -1,13 +1,13 @@
 <?php
 namespace bilibili\raichu\engine;
-use bilibili\raichu\engine\Loader;
+
 /**
  * 逻辑控制及Model/View交互
  * User: gukai@bilibili.com
  * Date: 17/2/15
  * Time: 下午6:57
  */
-class Controller
+class Controller extends Container
 {
     protected $middleware;
 
@@ -23,6 +23,7 @@ class Controller
         }
     }
 
+
     public function middleware($middleware)
     {
         if (is_string($middleware) && strstr($middleware, '@')) {
@@ -31,19 +32,24 @@ class Controller
         $this->middleware = $middleware;
     }
 
+
     public function getView()
     {
-        return View::getInstance();
+        $this->singleton("view", View::class);
+        return $this->make("view");
     }
+
 
     public function getResponse()
     {
-        return Response::getInstance();
+        $this->singleton("response", Response::class);
+        return $this->make("response");
     }
 
-    public function autoload($modules = null)
+
+    public function make($abstract, array $parameters = [])
     {
-        return Loader::getInstance($modules);
+        return parent::make($abstract, $parameters);
     }
 
 }

@@ -8,17 +8,9 @@ namespace bilibili\raichu\engine;
  */
 class Request
 {
-    protected static $_instance;
+
     protected static $_headers;
 
-    public static function getInstance()
-    {
-        if (null === static::$_instance) {
-            static::$_instance = new static();
-        }
-
-        return static::$_instance;
-    }
 
     public static function getHeader($name = '')
     {

@@ -1,42 +1,48 @@
 <?php
 namespace bilibili\raichu\engine;
-use bilibili\raichu\engine\logger\Logger;
 use bilibili\raichu\middleware\clockwork\Monitor;
 use bilibili\raichu\middleware\clockwork\CacheStorage;
+
 /**
  * 应用业务逻辑抽象实例
  * User: gukai@bilibili.com
  * Date: 17/2/11
  * Time: 下午4:57
  */
-class App
+class App extends Container
 {
 
-    protected static $_instance;
-    protected $_data = array();
+    protected static $instance;
 
 
-    public static function getInstance($debug = false)
+    public function __construct()
     {
-        if (static::$_instance == null) {
-            static::$_instance = new static($debug);
+        $this->singleton("request", Request::class);
+        $this->singleton("response", Response::class);
+        $this->singleton("view", View::class);
+        $this->singleton("router", Router::class);
+        $this->bind("dispatcher", Dispatcher::class);
+        $this->bind("loader", Loader::class);
+    }
+
+
+    public static function getInstance()
+    {
+        if (null == static::$instance) {
+            static::$instance = new static;
         }
 
-        return static::$_instance;
+        return static::$instance;
     }
 
 
     public function openDebug()
     {
-        $registry = Registry::getInstance();
-        $registry->debug = true;
+        $this->debug = true;
 
-        $storage = null;
-        if ($mc_config = $registry->memcache_config) {
-            $storage = new CacheStorage($mc_config['host'], $mc_config['port']);
-        }
+        $storage = new CacheStorage("172.16.0.148", 11211);
         $clockwork = Monitor::getClockwork($storage);
-        Router::getInstance()->get(
+        $this->getRouter()->get(
             '/__clockwork/(.*)', function ($request, $id) use ($clockwork) {
                 header('Content-Type: application/json');
                 echo $clockwork->getStorage()->retrieveAsJson($id);
@@ -46,10 +52,11 @@ class App
         Monitor::getInstance()->startEvent('App Request', 'Total Time Costs.');
     }
 
+
     public function setDB(array $config)
     {
         foreach ($config as $name => $option) {
-            if (Registry::getInstance()->debug) {
+            if ($this->debug) {
                 $option['logging'] = true;
                 \ORM::configure(
                     'logger', function ($query, $time) {
@@ -61,29 +68,24 @@ class App
         }
     }
 
-    public function getRegistry()
-    {
-        return Registry::getInstance();
-    }
-
     public function getRouter()
     {
-        return Router::getInstance();
+        return $this->make("router", [$this]);
     }
 
     public function getRequest()
     {
-        return Request::getInstance();
+        return $this->make("request");
     }
 
     public function getResponse()
     {
-        return Response::getInstance();
+        return $this->make("response");
     }
 
     public function getView()
     {
-        return View::getInstance();
+        return $this->make("view");
     }
 
     public static function getDB($database = 'default')
@@ -108,13 +110,13 @@ class App
 
     public function autoload($modules = null)
     {
-        return new Loader($modules);
+        return $this->make("loader", [$modules]);
     }
 
 
     public function dispatcher()
     {
-        return new Dispatcher($this);
+        return $this->make("dispatcher", [$this]);
     }
 
 }

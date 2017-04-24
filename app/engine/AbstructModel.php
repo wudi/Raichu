@@ -54,7 +54,7 @@ abstract class AbstractModel extends Model
     }
 
 
-
+    
     public function find($id, $is_array = true)
     {
         $item = $this->clean()->where(static::$_primary, $id)->find_one();

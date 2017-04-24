@@ -6,12 +6,11 @@
  * @copyright Copyright (c) 2017, Bilibili
  */
 
-namespace Raichu\Foundation;
+namespace bilibili\raichu\engine;
 
 /**
  * Container容器类，实现依赖注入
  * 通过容器类，使类的绑定与实例化解耦
- * 
  * @package Raichu\Foundation
  */
 class Container implements \ArrayAccess
@@ -116,7 +115,7 @@ class Container implements \ArrayAccess
             if (is_null($constructor)) {
                 return new $concrete;
             }
-            return $reflector->newInstanceArgs(array_merge([$this], $parameters));
+            return $reflector->newInstanceArgs($parameters);
         } catch (\Exception $e) {
             return false;
         }
@@ -171,8 +170,7 @@ class Container implements \ArrayAccess
      */
     public function flush()
     {
-        $this->bindings = [];
-        $this->instances = [];
+        $this->bindings = $this->instances = [];
     }
 
     /**
@@ -194,6 +192,10 @@ class Container implements \ArrayAccess
      */
     public function offsetGet($key)
     {
+        if (!$key) {
+            return false;
+        }
+
         return $this->data[$key];
     }
 
