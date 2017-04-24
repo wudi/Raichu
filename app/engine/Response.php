@@ -10,6 +10,37 @@ use bilibili\raichu\engine\AbstractController;
 class Response
 {
 
+    /**
+     * @var array $_ret 注册http响应数组
+     */
+    protected $_ret;
+
+
+    /**
+     * 通过设置成员变量来设置响应数据
+     *
+     * @param  string $name  键值
+     * @param  mix    $value 键值
+     * @return void
+     */
+    public function __set($name, $value)
+    {
+        $this->_ret[$name] = $value;
+    }
+
+    /**
+     * 通过成员变量来获取响应数据
+     *
+     * @param  string $name 键值
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->_ret[$name];
+    }
+
+
+
     public function setHeader($code)
     {
         $message = self::$httpStatuses[$code];
@@ -52,6 +83,19 @@ class Response
         }
         header($_SERVER['SERVER_PROTOCOL'].' '.$message);
         echo $message;
+    }
+
+
+    /**
+     * 返回注册到$_ret的json数据
+     *
+     * @return void
+     */
+    public function response()
+    {
+        if ($this->_ret) {
+            $this->ajaxReturn($this->_ret);
+        }
     }
 
 
