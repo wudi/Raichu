@@ -46,7 +46,3 @@ define('IS_WIN', (DIRECTORY_SEPARATOR === '\\'));
 //        echo "<hr>Assertion Failed: File '$file'<br /> Line '$line'<br /> Code '$code'<br /><hr />";
 //    }
 //);
-
-// 引入memcache地址
-define('ROOT_MEMCACHE', __DIR__.'/config/memcache.php');
-define('API_CONFIG', __DIR__.'/config/api.php');

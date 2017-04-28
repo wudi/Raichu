@@ -65,7 +65,7 @@ class Response
         case 'JSONP':
             // 返回JSON数据格式到客户端 包含状态信息
             header('Content-Type:application/json; charset=utf-8');
-            exit(Request::getInstance()->getRequest('callback').'('.json_encode($data, $json_option).');');
+            exit(App::getInstance()->getRequest()->getRequest('callback').'('.json_encode($data, $json_option).');');
         default:
             return;
         }

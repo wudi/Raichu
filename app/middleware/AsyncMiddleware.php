@@ -37,12 +37,12 @@ class AsyncMiddleware implements Middleware
     public function updateTask($app, $async)
     {
         // yield $async->parallel($this->foo(), $this->bar());
-        yield $app->add(new UpdateCommand());
+        yield $app->add(new HelloCommand());
     }
 
     public function archiveTask($app)
     {
-        yield $app->add(new ArchiveCommand());
+        yield $app->add(new WorldCommand());
     }
 
     public function foo()
