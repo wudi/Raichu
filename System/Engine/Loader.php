@@ -49,43 +49,48 @@ class Loader
      * @param string $suffix
      * @return bool
      */
-    public static function import($file, $path = '')
+    public static function import($file, $path = null, $suffix = '.php')
     {
         if (isset(static::$loaded[$file])) {
             return true;
         }
 
-        $fileName = ucfirst(trim($file, 'php')).'.php';
-        if ($path) {
-            include trim($path, DS) .DS. $file;
-        } else {
-            $result = [];
-            static::traversing(APP_PATH, $result);
-            foreach ($result AS $val) {
-                if (basename($val) == $fileName) {
-                    include_once $val;
-                    break;
-                }
+        $fileName = ucfirst(trim($file, 'php')).$suffix;
+
+        $result = [];
+        static::traversing(APP_PATH.DS.$path, $result);
+        foreach ($result AS $val) {
+            if (basename($val) == $fileName) {
+                include_once $val;
+                break;
             }
         }
 
-        return static::$loaded[$file] = 1;
+        return static::$loaded[$file] = true;
     }
 
 
+    /**
+     * 递归扫描所有文件
+     *
+     * @param $path
+     * @param $result
+     * @return bool
+     */
     protected static function traversing($path, &$result)
     {
         $curr = glob($path . '/*');
         if ($curr) {
-            foreach ($curr as $f) {
-                if (is_dir($f)) {
-                    array_push($result, $f);
-                    self::traversing($f, $result);
-                } elseif (strtolower(substr($f, -4)) == '.php') {
-                    array_push($result, $f);
+            foreach ($curr as $file) {
+                if (is_dir($file)) {
+                    static::traversing($file, $result);
+                } elseif (strtolower(substr($file, -4)) == '.php') {
+                    array_push($result, $file);
                 }
             }
         }
+
+        return true;
     }
 
 
@@ -96,7 +101,7 @@ class Loader
      * @return array|bool
      * @throws \Exception
      */
-    public function autoload($class)
+    protected function autoload($class)
     {
         if (in_array($class, spl_classes())) {
             return false;
@@ -139,7 +144,11 @@ class Loader
             return;
         }
 
-        return static::import($name);
+        if (stripos($name, "model") === false) {
+            $name = $name.ucfirst(__FUNCTION__);
+        }
+
+        return static::import($name, 'Modules/*/model');
     }
 
 
@@ -163,7 +172,11 @@ class Loader
             return;
         }
 
-        return static::import($name);
+        if (stripos($name, "provider") === false) {
+            $name = $name.ucfirst(__FUNCTION__);
+        }
+
+        return static::import($name, 'Modules/*/provider');
     }
 
     /**
@@ -186,7 +199,11 @@ class Loader
             return;
         }
 
-        return static::import($name);
+        if (stripos($name, "controller") === false) {
+            $name = $name.ucfirst(__FUNCTION__);
+        }
+
+        return static::import($name, 'Modules/*/controller');
     }
 
 
@@ -210,7 +227,11 @@ class Loader
             return;
         }
 
-        return static::import($name);
+        if (stripos($name, "command") === false) {
+            $name = $name.ucfirst(__FUNCTION__);
+        }
+
+        return static::import($name, 'Console');
     }
 
 
@@ -234,7 +255,11 @@ class Loader
             return;
         }
 
-        return static::import($name);
+        if (stripos($name, "middleware") === false) {
+            $name = $name.ucfirst(__FUNCTION__);
+        }
+
+        return static::import($name, 'Middleware');
     }
 
 }
