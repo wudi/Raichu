@@ -15,6 +15,7 @@ class Loader
     protected static $loaded = [];
 
 
+
     /**
      * Loader constructor.
      * @param null $module
@@ -59,6 +60,7 @@ class Loader
 
         $result = [];
         static::traversing(APP_PATH.DS.$path, $result);
+        print_r($result);
         foreach ($result AS $val) {
             if (basename($val) == $fileName) {
                 include_once $val;
