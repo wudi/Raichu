@@ -70,6 +70,10 @@ class XsrfMiddleware implements Middleware
     }
 
 
+    /**
+     * AbstractController::getInstance()->initialize()
+     * @return string
+     */
     protected function generateToken()
     {
         return md5(uniqid(rand(), true));
