@@ -312,11 +312,15 @@ class Logger
 
             if (is_callable($pop)) {
                 call_user_func($pop, $level, $message, $path);
-                continue;
+            }
+            
+            if (function_exists($context[$level])) {
+                $pop = $context[$level]; 
+                $pop($level);
             }
         }
 
-        return ($this->handle);
+        return $this->handle;
     }
 
 
