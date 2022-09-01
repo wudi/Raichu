@@ -27,6 +27,7 @@ class App extends Container
      */
     public function __construct()
     {
+        // register_shutdown_function([$this, 'handleError']);
         set_error_handler([$this, 'handleError']);
         set_exception_handler([$this, 'handleException']);
         $this->loadEngine();
